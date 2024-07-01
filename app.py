@@ -43,6 +43,8 @@ def extract_pdf_document(file):
 def home():
     return ({"response" : "Hello from the backend"})
 
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     select_option = request.form.get('selectOption')
