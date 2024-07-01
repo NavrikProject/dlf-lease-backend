@@ -1,0 +1,8 @@
+Flask
+google-cloud-documentai
+Flask-CORS
+python-dotenv
+google-auth
+google-api-python-client
+azure-storage-blob
+google.cloud
