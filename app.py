@@ -10,7 +10,7 @@ import json
 from dotenv import load_dotenv
 import os
 from GoogleCustomDocAI import process_document
-
+# enabling flask
 app = Flask(__name__)
 CORS(app)
 load_dotenv()
@@ -39,6 +39,9 @@ def extract_pdf_document(file):
         # Clean up the temporary file
         if os.path.exists(pdf_file_path):
             os.remove(pdf_file_path)
+@app.route('/home', methods=['GET'])
+def home():
+    return ({"response" : "Hello from the backend"})
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
