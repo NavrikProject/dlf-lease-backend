@@ -12,9 +12,6 @@ AZURE_CONTAINER_NAME = os.getenv('container_name')
 AZURE_BLOB_NAME = os.getenv('blob_name')
 #print("Azure storage credentials",AZURE_CONNECTION_STRING,AZURE_CONTAINER_NAME,AZURE_BLOB_NAME)
 
-pdf_file_path = "Cust_pdf.pdf"
-
-
 # Initialize the BlobServiceClient
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
 blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=AZURE_BLOB_NAME)
@@ -63,7 +60,7 @@ blob_data = blob_client.download_blob().readall()
 
 # Decode the bytes into a string (assuming it's JSON content)
 blob_content = blob_data.decode('utf-8')
-
+#print(blob_content)
 # Parse the JSON content
 json_content = json.loads(blob_content)
 
@@ -89,7 +86,7 @@ with open(custom_document_ai_json_file_path, 'w') as file:
 
 #print(f"New file '{custom_document_ai_json_file_path}' created successfully.")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "custom_document_ai.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = custom_document_ai_json_file_path
 
 def process_document(project_id, location, processor_id, file_path):
     

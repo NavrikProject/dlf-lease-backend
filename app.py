@@ -10,8 +10,6 @@ import json
 from dotenv import load_dotenv
 import os
 from GoogleCustomDocAI import process_document
-#IMPORTS END
-
 
 app = Flask(__name__)
 CORS(app)
@@ -25,18 +23,18 @@ def extract_pdf_document(file):
     if file.filename == '':
         print("No file selected for uploading")
         print(f"File uploaded: {file.filename}")
-        return jsonify({"error": "No selected file"}), 400
+        return {"error": "No selected file"}, 400
     # Save the file to a temporary location
     temp_dir = tempfile.gettempdir()
     pdf_file_path = os.path.join(temp_dir, file.filename)
-    file.save(pdf_file_path)    
+    file.save(pdf_file_path)
     # Extract text from PDF
     try:
         entities = process_document(PROJECT_ID, LOCATION, PROCESSOR_ID, pdf_file_path)
-        return entities
+        return entities, 200
     except Exception as extraction_error:
         print(f"Error extracting text from PDF: {str(extraction_error)}")
-        return jsonify({"error": f"Error extracting text from PDF: {str(extraction_error)}"}), 500
+        return {"error": f"Error extracting text from PDF: {str(extraction_error)}"}, 500
     finally:
         # Clean up the temporary file
         if os.path.exists(pdf_file_path):
@@ -44,7 +42,6 @@ def extract_pdf_document(file):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    print(request)
     select_option = request.form.get('selectOption')
     pdf_file1 = request.files.get('pdfFile1')
     pdf_file2 = request.files.get('pdfFile2')
@@ -55,46 +52,38 @@ def upload_file():
     print(f"PDF File 2: {pdf_file2.filename if pdf_file2 else 'No file'}")
 
     combined_results = []
-    
+
     try:
-        select_option = request.form.get('selectOption')
-        
         if select_option == 'LeasingDoc':
-            if 'pdfFile1' not in request.files:
+            if not pdf_file1:
                 print("No file part in the request")
                 return jsonify({"error": "No file part"}), 400
-            file = request.files['pdfFile1']
-            response = extract_pdf_document(file)
-            if isinstance(response, list):
+            response, status_code = extract_pdf_document(pdf_file1)
+            if status_code == 200:
                 combined_results.extend(response)
             else:
-                return jsonify(response), 400
+                return jsonify(response), status_code
         elif select_option == 'compare-gst':
-            if 'pdfFile1' not in request.files:
+            if not pdf_file1:
                 print("No file part in the request")
                 return jsonify({"error": "No file part"}), 400
-            file1 = request.files['pdfFile1']
-            response1 = extract_pdf_document(file1)
-            if isinstance(response1, list):
+            response1, status_code1 = extract_pdf_document(pdf_file1)
+            if status_code1 == 200:
                 combined_results.extend(response1)
             else:
-                return jsonify(response1), 400
-            if 'pdfFile2' not in request.files:
+                return jsonify(response1), status_code1
+            if not pdf_file2:
                 print("No second file part in the request")
                 return jsonify({"error": "No second file part"}), 400
-            file2 = request.files['pdfFile2']
-            response2 = extract_pdf_document(file2)
-            if isinstance(response2, list):
+            response2, status_code2 = extract_pdf_document(pdf_file2)
+            if status_code2 == 200:
                 combined_results.extend(response2)
             else:
-                return jsonify(response2), 400
+                return jsonify(response2), status_code2
         return jsonify(combined_results)
     except Exception as upload_error:
         print(f"Error processing upload: {str(upload_error)}")
         return jsonify({"error": f"Error processing upload: {str(upload_error)}"}), 500
 
-
-
 if __name__ == '__main__':
-    app.run(debug=True)
-    app.run(host="0.0.0.0", port=8000)
+    app.run(debug=True, host="0.0.0.0", port=8000)
