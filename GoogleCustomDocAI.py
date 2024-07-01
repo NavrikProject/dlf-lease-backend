@@ -85,7 +85,6 @@ with open(custom_document_ai_json_file_path, 'w') as file:
     json.dump(json_content, file, indent=2)
 
 #print(f"New file '{custom_document_ai_json_file_path}' created successfully.")
-
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = custom_document_ai_json_file_path
 
 def process_document(project_id, location, processor_id, file_path):
